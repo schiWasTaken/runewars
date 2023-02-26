@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # runewars
 rock paper scissors but it's complicated
 
@@ -83,3 +84,6 @@ In the case of `Charge :.: Ember`, even though you've casted Charge, you will lo
 There are other moves and other mechanics that haven't been covered yet but I'm sure you'll figure it out by playing. Have fun!
 
 
+=======
+# runewars
+>>>>>>> Add .gitattributes, .gitignore, and README.md.
