@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # runewars
 rock paper scissors but it's complicated
 
