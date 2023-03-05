@@ -90,6 +90,6 @@ std::vector<std::pair<std::string, Move>> createFullMoveNameVector(std::vector<s
 
 void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::string& input, std::string& input2, Player& p1, Player& p2);
 
-void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1);
+void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1, Player& p2);
 
 

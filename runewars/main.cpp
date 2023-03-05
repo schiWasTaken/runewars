@@ -22,7 +22,7 @@ std::string trim(std::string str) {
     return str;
 }
 
-std::vector<std::pair<std::string, Move>> getLegalMoves(Player p) {
+std::vector<std::pair<std::string, Move>> getLegalMoves(Player p, std::vector<std::pair<std::string, Move>> moves_vector) {
     std::vector<std::pair<std::string, Move>> legalMoves_vector;
     std::copy_if(moves_vector.begin(), moves_vector.end(), std::back_inserter(legalMoves_vector), [p](std::pair<std::string, Move> i) {
         Move m = i.second;
@@ -111,10 +111,10 @@ int main()
     Player p1(0, 0, startingHP, 0);
     Player p2(0, 0, startingHP, 0);
 
-    cout << ":  Rune  :" << endl;
-    cout << ":. Wars .:" << endl;
-    cout << ">>> Hint: type help [movename]" << endl;
-    cout << "HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << endl;
+    cout << ":::  Rune  :::" << endl;
+    cout << ":::. Wars .:::" << endl << endl;
+    cout << ">>> Hint: type help [movename]" << endl << endl;
+    cout << ":::: HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << " ::::" << endl;
     cout << ".:.: ";
 
     while (true) {
@@ -127,7 +127,7 @@ int main()
         std::string input = "";
         currentAbbvMove = "";
         std::getline(std::cin, input);
-        runCommand(input, fullMoveName_vector, currentAbbvMove, p1);
+        runCommand(input, fullMoveName_vector, currentAbbvMove, p1, p2);
         input = currentAbbvMove;
         std::unordered_map<std::string, Move> moves;
         for (auto kv_pair : moves_vector) {
@@ -145,7 +145,7 @@ int main()
             continue;
         }
         if (moves[input].getCost() > p1._charges) {
-            cout << "Not enough charges" << endl;
+            cout << ">>> Not enough charges" << endl;
             cout << ".:.: ";
             cin.clear();
             fflush(stdin);
@@ -161,13 +161,13 @@ int main()
 
             // Get random CPU input
             std::random_device rd;
-            std::uniform_int_distribution<int> uni(0, getLegalMoves(p2).size() - 1);
+            std::uniform_int_distribution<int> uni(0, getLegalMoves(p2, moves_vector).size() - 1);
             int rngIndex = uni(rd);
-            std::string input2 = getLegalMoves(p2)[rngIndex].first;
+            std::string input2 = getLegalMoves(p2, moves_vector)[rngIndex].first;
 
             // Update player states
             Actions(moves, startingHP, input, input2, p1, p2);
-            cout << "HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << endl;
+            cout << ":::: HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << " ::::" << endl;
             cout << ".:.: ";
         }
     }
@@ -203,8 +203,26 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
     Move i2 = moves[input2];
     p1._charges -= i1.getCost();
     cout << ":.:. " << input2 << endl;
-    cout << i1.getName() << " :.: " << i2.getName() << endl;
+    
     int winner = whoWins(i1, i2, 1, 2);
+
+    std::string winnerSymbolThing;
+    switch (winner) {
+    case 1:
+        winnerSymbolThing = " > ";
+        break;
+    case 2:
+        winnerSymbolThing = " < ";
+        break;
+    case -1:
+        winnerSymbolThing = " = ";
+        break;
+    case 0:
+        winnerSymbolThing = " . ";
+        break;
+    }
+
+    cout << ":::. " << i1.getName() << winnerSymbolThing << i2.getName() << " .:::" << endl;
 
     catchRecursion = 0;
 
@@ -221,7 +239,7 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
     double disrupt2 = round(totaldamage2 / 3);
 
     if (winner == 1) {
-        cout << "Player 1 ";
+        cout << ">>> Player 1 ";
         if (i1.getSpecial() == rf || i1.getSpecial() == lm) { //deflected
             p2._health -= totaldamage2;
             cout << "deflected " << totaldamage2 << " damage";
@@ -253,7 +271,7 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
         p2._focusPower = 0; //disrupt focus
     }
     if (winner == 2) {
-        cout << "Player 2 ";
+        cout << ">>> Player 2 ";
         if (i2.getSpecial() == rf || i2.getSpecial() == lm) {
             p1._health -= totaldamage1;
             cout << "deflected " << totaldamage1 << " damage";
@@ -285,7 +303,7 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
         p1._focusPower = 0;
     }
     if (winner == -1) {
-        cout << "Parry! (+2 each)" << endl;
+        cout << ">>> Parry! (+2 each)" << endl;
         p1._charges += 2;
         p2._charges += 2;
     }
@@ -293,7 +311,7 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
         if (i2.getPower() > 0) {
             if (p1._health <= startingHP / 4) {
                 p1._health = startingHP;
-                cout << "Player 1 revived!" << endl;
+                cout << ">>> Player 1 revived!" << endl;
             }
         }
     }
@@ -301,7 +319,7 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
         if (i1.getPower() > 0) {
             if (p2._health <= startingHP / 4) {
                 p2._health = startingHP;
-                cout << "Player 2 revived!" << endl;
+                cout << ">>> Player 2 revived!" << endl;
             }
         }
     }
@@ -313,21 +331,21 @@ void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::
     }
     if (p2._health <= 0) {
         p1.scores++;
-        cout << "Player 1 wins! (" << p1.scores << ":" << p2.scores << ")\n";
+        cout << ">>> Player 1 wins! (" << p1.scores << ":" << p2.scores << ")\n";
     }
     else if (p1._health <= 0) {
         p2.scores++;
-        cout << "Player 2 wins! (" << p1.scores << ":" << p2.scores << ")\n";
+        cout << ">>> Player 2 wins! (" << p1.scores << ":" << p2.scores << ")\n";
     }
     if (p1._health <= 0 || p2._health <= 0) {
         handicap = p1.scores - p2.scores;
-        std::cout << "Difficulty set to: " << (chargePower + handicap) << endl;
+        std::cout << ">>> Difficulty set to: " << (chargePower + handicap) << endl;
         p1.reset();
         p2.reset();
     }
 }
 
-void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1)
+void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1, Player& p2)
 {
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
     for (int i = 0; i < moves_vector.size(); i++) {
@@ -338,7 +356,7 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
             std::transform(helpInput.begin(), helpInput.end(), helpInput.begin(), ::tolower);
             if (helpInput == move || helpInput == fullmove) {
                 Move currMove = moves_vector[i].second;
-                cout << currMove.getName() << " [" << move << "] - cost: " << currMove.getCost();
+                cout << endl << ">>> " << currMove.getName() << " [" << move << "] - cost: " << currMove.getCost();
                 if (currMove.getPower() > 0) {
                     cout << ", atk power: " << currMove.getPower() << endl;
                 }
@@ -348,7 +366,7 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
                 else {
                     cout << endl;
                 }
-                cout << currMove.getDesc() << endl;
+                cout << ">>> " << currMove.getDesc() << endl << endl;
             }
         }
         if (input == move || input == fullmove) {
@@ -356,10 +374,11 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
         }
     }
     if (input == "moves") {
-        cout << ">>> Here are the list of legal moves." << endl;
-        cout << "[";
+        cout << endl;
+        cout << ">>> Player 1 legal moves:" << endl;
+        cout << ">>> [";
         bool first = true;
-        for (const auto& move : getLegalMoves(p1)) {
+        for (const auto& move : getLegalMoves(p1, moves_vector)) {
             if (!first) {
                 cout << ", ";
             }
@@ -368,10 +387,45 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
         }
         cout << "]";
         cout << endl;
+        cout << ">>> [";
+        first = true;
+        for (const auto& move : getLegalMoves(p1, fullMoveName_vector)) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << move.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl;
+        cout << endl << ">>> Player 2 legal moves:" << endl;
+        cout << ">>> [";
+        first = true;
+        for (const auto& move : getLegalMoves(p2, moves_vector)) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << move.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl;
+        cout << ">>> [";
+        first = true;
+        for (const auto& move : getLegalMoves(p2, fullMoveName_vector)) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << move.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl << endl;
     }
     if (input == "help") {
-        cout << ">>> Here are the list of moves, hint: you can type help f or help focus for more info." << endl;
-        cout << "[";
+        cout << endl;
+        cout << ">>> Here are the list of moves:" << endl;
+        cout << ">>> [";
         bool first = true;
         for (const auto& move : moves_vector) {
             if (!first) {
@@ -382,7 +436,7 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
         }
         cout << "]";
         cout << endl;
-        cout << "[";
+        cout << ">>> [";
         first = true;
         for (const auto& fullmove : fullMoveName_vector) {
             if (!first) {
@@ -392,7 +446,7 @@ void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& f
             first = false;
         }
         cout << "]";
-        cout << endl;
+        cout << endl << endl;
     }
 }
 

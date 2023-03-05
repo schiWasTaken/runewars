@@ -63,7 +63,7 @@ namespace UnitTest1
 				fullMoveName[kv_pair.first] = kv_pair.second;
 			}
 		}
-		TEST_METHOD(sb_rv) {
+		TEST_METHOD(revive) {
 			Player p1 = *new Player();
 			Player p2 = *new Player();
 			std::unordered_map<std::string, Move> m = moves;
@@ -73,6 +73,31 @@ namespace UnitTest1
 			play("sb", "rv");
 			play("rv", "sb");
 			Assert::AreEqual(0, p1.scores);
+			Assert::AreEqual(0, p2.scores);
+		}
+		TEST_METHOD(mp_crit) {
+			Player p1 = *new Player();
+			Player p2 = *new Player();
+			std::unordered_map<std::string, Move> m = moves;
+			auto play = [&p1, &p2, &m](std::string input, std::string input2) {
+				Actions(m, 20, input, input2, p1, p2);
+			};
+			play("mp", "rf");
+			play("mp", "rf");
+			Assert::AreNotEqual(0, p1.scores);
+			Assert::AreEqual(0, p2.scores);
+		}
+		TEST_METHOD(bb_e_wp) {
+			Player p1 = *new Player();
+			Player p2 = *new Player();
+			std::unordered_map<std::string, Move> m = moves;
+			auto play = [&p1, &p2, &m](std::string input, std::string input2) {
+				Actions(m, 20, input, input2, p1, p2);
+			};
+			play("e", "bb");
+			play("wp", "e");
+			play("bb", "wp");
+			Assert::AreNotEqual(0, p1.scores);
 			Assert::AreEqual(0, p2.scores);
 		}
 	};
