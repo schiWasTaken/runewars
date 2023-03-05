@@ -84,7 +84,10 @@ namespace UnitTest1
 			};
 			play("mp", "rf");
 			play("mp", "rf");
+<<<<<<< HEAD
 			play("mp", "rf");
+=======
+>>>>>>> 42838f2ebd81283e21aa159796e2d7211a34be1f
 			Assert::AreNotEqual(0, p1.scores);
 			Assert::AreEqual(0, p2.scores);
 		}
