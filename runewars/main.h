@@ -1,16 +1,18 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <unordered_map>
+
 enum specialMoveConditions {
     none = 0,
     bb = 1,
     e,
     wp,
-    rv = 7,
     rf = 11,
     lm,
     mp = 21,
-    p
+    p,
+    rv = 31
 };
 struct Move {
     std::string _name = "";
@@ -85,5 +87,9 @@ static std::vector<std::pair<std::string, Move>> moves_vector = {
 {"sb", {"Solar Beam", 7, 50, none, "The strongest attack."}}
 };
 std::vector<std::pair<std::string, Move>> createFullMoveNameVector(std::vector<std::pair<std::string, Move>>& moves_vector);
+
+void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::string& input, std::string& input2, Player& p1, Player& p2);
+
+void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1);
 
 

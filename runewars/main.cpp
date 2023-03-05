@@ -114,84 +114,20 @@ int main()
     cout << ":  Rune  :" << endl;
     cout << ":. Wars .:" << endl;
     cout << ">>> Hint: type help [movename]" << endl;
-    
+    cout << "HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << endl;
+    cout << ".:.: ";
+
     while (true) {
         std::string currentAbbvMove;
-        auto runCommand = [&currentAbbvMove, p1, fullMoveName_vector](std::string input) {
-            std::transform(input.begin(), input.end(), input.begin(), ::tolower);
-            for (int i = 0; i < moves_vector.size(); i++) {
-                std::string move = moves_vector[i].first;
-                std::string fullmove = fullMoveName_vector[i].first;
-                if (input.substr(0, 5) == "help ") {
-                    std::string helpInput = input.substr(5);
-                    std::transform(helpInput.begin(), helpInput.end(), helpInput.begin(), ::tolower);
-                    if (helpInput == move || helpInput == fullmove) {
-                        Move currMove = moves_vector[i].second;
-                        cout << currMove.getName() << " [" << move << "] - cost: " << currMove.getCost();
-                        if (currMove.getPower() > 0) {
-                            cout << ", atk power: " << currMove.getPower() << endl;
-                        }
-                        else if (currMove.getPower() < 0) {
-                            cout << ", def power: " << -currMove.getPower() << endl;
-                        }
-                        else {
-                            cout << endl;
-                        }
-                        cout << currMove.getDesc() << endl;
-                    }
-                }
-                if (input == move || input == fullmove) {
-                    currentAbbvMove = move;
-                }
-            }
-            if (input == "moves") {
-                cout << ">>> Here are the list of legal moves." << endl;
-                cout << "[";
-                bool first = true;
-                for (const auto& move : getLegalMoves(p1)) {
-                    if (!first) {
-                        cout << ", ";
-                    }
-                    cout << move.first;
-                    first = false;
-                }
-                cout << "]";
-                cout << endl;
-            }
-            if (input == "help") {
-                cout << ">>> Here are the list of moves, hint: you can type help f or help focus for more info." << endl;
-                cout << "[";
-                bool first = true;
-                for (const auto& move : moves_vector) {
-                    if (!first) {
-                        cout << ", ";
-                    }
-                    cout << move.first;
-                    first = false;
-                }
-                cout << "]";
-                cout << endl;
-                cout << "[";
-                first = true;
-                for (const auto& fullmove : fullMoveName_vector) {
-                    if (!first) {
-                        cout << ", ";
-                    }
-                    cout << fullmove.first;
-                    first = false;
-                }
-                cout << "]";
-                cout << endl;
-            }
-        };
-
-        cout << "HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << endl;
-        cout << ".:.: ";
+        //auto runCommand = [&currentAbbvMove, p1, fullMoveName_vector](std::string input) {
+        //    
+        //};
+        
         // Get player input
         std::string input = "";
         currentAbbvMove = "";
         std::getline(std::cin, input);
-        runCommand(input);
+        runCommand(input, fullMoveName_vector, currentAbbvMove, p1);
         input = currentAbbvMove;
         std::unordered_map<std::string, Move> moves;
         for (auto kv_pair : moves_vector) {
@@ -230,161 +166,233 @@ int main()
             std::string input2 = getLegalMoves(p2)[rngIndex].first;
 
             // Update player states
-            p2._charges -= moves[input2].getCost();
-            double chargePower = 1;
+            Actions(moves, startingHP, input, input2, p1, p2);
+            cout << "HP: " << p1._health << " | MP: " << p1._charges << " (" << p1._focusPower << ")" << " ::: " << "HP: " << p2._health << " | MP: " << p2._charges << " (" << p2._focusPower << ")" << endl;
+            cout << ".:.: ";
+        }
+    }
+}
 
-            if (input == "f") {
-                p1._focusPower += 1.5;
-            }
-            if (input2 == "f") {
-                p2._focusPower += 1.5;
-            }
-            if (input == "c") {
-                p1._charges += chargePower + p1._focusPower;
-                if (p1._focusPower > 0) {
-                    p1._focusPower = 0;
-                }
-            }
-            double handicap = p1.scores - p2.scores;
-            handicap = handicap < 0 ? 0 : handicap;
-            if (input2 == "c") {
-                p2._charges += chargePower + p2._focusPower + handicap;
-                if (p2._focusPower > 0) {
-                    p2._focusPower = 0;
-                }
-            }
+void Actions(std::unordered_map<std::string, Move>& moves, int startingHP, std::string& input, std::string& input2, Player& p1, Player& p2)
+{
+    p2._charges -= moves[input2].getCost();
+    double chargePower = 1;
 
-            Move i1 = moves[input];
-            Move i2 = moves[input2];
-            p1._charges -= i1.getCost();
-            cout << ":.:. " << input2 << endl;
-            cout << i1.getName() << " :.: " << i2.getName() << endl;
-            int winner = whoWins(i1, i2, 1, 2);
+    if (input == "f") {
+        p1._focusPower += 1.5;
+    }
+    if (input2 == "f") {
+        p2._focusPower += 1.5;
+    }
+    if (input == "c") {
+        p1._charges += chargePower + p1._focusPower;
+        if (p1._focusPower > 0) {
+            p1._focusPower = 0;
+        }
+    }
+    double handicap = p1.scores - p2.scores;
+    handicap = handicap < 0 ? 0 : handicap;
+    if (input2 == "c") {
+        p2._charges += chargePower + p2._focusPower + handicap;
+        if (p2._focusPower > 0) {
+            p2._focusPower = 0;
+        }
+    }
 
-            catchRecursion = 0;
+    Move i1 = moves[input];
+    Move i2 = moves[input2];
+    p1._charges -= i1.getCost();
+    cout << ":.:. " << input2 << endl;
+    cout << i1.getName() << " :.: " << i2.getName() << endl;
+    int winner = whoWins(i1, i2, 1, 2);
 
-            double extraDamage = 0;
-            if (i1.getSpecial() == mp && (i2.getSpecial() == rf || i2.getSpecial() == lm)) { //if mega punch then crit reflectors
-                extraDamage = 16;
-            }
-            if (i2.getSpecial() == mp && (i1.getSpecial() == rf || i1.getSpecial() == lm)) {
-                extraDamage = 16;
-            }
-            double totaldamage1 = i1.getPower() + extraDamage;
-            double totaldamage2 = i2.getPower() + extraDamage;
-            double disrupt1 = round(totaldamage1 / 3);
-            double disrupt2 = round(totaldamage2 / 3);
+    catchRecursion = 0;
 
-            if (winner == 1) {
-                cout << "Player 1 ";
-                if (i1.getSpecial() == rf || i1.getSpecial() == lm) { //uno reverse card
-                    p2._health -= totaldamage2;
-                    cout << "deflected " << totaldamage2 << " damage";
-                    if (disrupt2 > 0) {
-                        cout << ", disrupting " << disrupt2 << " mana!" << endl;
-                    }
-                    else {
-                        cout << "." << endl;
-                    }
-                    p2._charges -= disrupt2;
-                }
-                else { //standard
-                    p2._health -= abs(totaldamage1);
-                    cout << "dealt " << totaldamage1 << " damage";
-                    if (disrupt1 > 0) {
-                        cout << ", disrupting " << disrupt1 << " mana!";
-                        if (extraDamage > 0) {
-                            cout << " (Crit!)" << endl;
-                        }
-                        else {
-                            cout << endl;
-                        }
-                    }
-                    else {
-                        cout << "." << endl;
-                    }
-                    p2._charges -= disrupt1; //disrupt charges
-                }
-                p2._focusPower = 0; //disrupt focus
+    double extraDamage = 0;
+    if (i1.getSpecial() == mp && (i2.getSpecial() == rf || i2.getSpecial() == lm)) { //if mega punch then crit reflectors
+        extraDamage = 16;
+    }
+    if (i2.getSpecial() == mp && (i1.getSpecial() == rf || i1.getSpecial() == lm)) {
+        extraDamage = 16;
+    }
+    double totaldamage1 = i1.getPower() + extraDamage;
+    double totaldamage2 = i2.getPower() + extraDamage;
+    double disrupt1 = round(totaldamage1 / 3);
+    double disrupt2 = round(totaldamage2 / 3);
+
+    if (winner == 1) {
+        cout << "Player 1 ";
+        if (i1.getSpecial() == rf || i1.getSpecial() == lm) { //deflected
+            p2._health -= totaldamage2;
+            cout << "deflected " << totaldamage2 << " damage";
+            if (disrupt2 > 0) {
+                cout << ", disrupting " << disrupt2 << " mana!" << endl;
             }
-            if (winner == 2) {
-                cout << "Player 2 ";
-                if (i2.getSpecial() == rf || i2.getSpecial() == lm) {
-                    p1._health -= totaldamage1;
-                    cout << "deflected " << totaldamage1 << " damage";
-                    if (disrupt1 > 0) {
-                        cout << ", disrupting " << disrupt1 << " mana!" << endl;
-                    }
-                    else {
-                        cout << "." << endl;
-                    }
-                    p1._charges -= disrupt1;
+            else {
+                cout << "." << endl;
+            }
+            p2._charges -= disrupt2;
+        }
+        else { //standard
+            p2._health -= abs(totaldamage1);
+            cout << "dealt " << totaldamage1 << " damage";
+            if (disrupt1 > 0) {
+                cout << ", disrupting " << disrupt1 << " mana!";
+                if (extraDamage > 0) {
+                    cout << " (Crit!)" << endl;
                 }
-                else {        
-                    p1._health -= abs(totaldamage2);
-                    cout << "dealt " << totaldamage2 << " damage";
-                    if (disrupt2 > 0) {
-                        cout << ", disrupting " << disrupt2 << " mana!";
-                        if (extraDamage > 0) {
-                            cout << " (Crit!)" << endl;
-                        }
-                        else {
-                            cout << endl;
-                        }
-                    }
-                    else {
-                        cout << "." << endl;
-                    }
-                    p1._charges -= disrupt2;
-                }
-                p1._focusPower = 0;
-            }
-            if (winner == -1) {
-                cout << "Parry! (+2 each)" << endl;
-                p1._charges += 2;
-                p2._charges += 2;
-            }
-            if (winner == -2) {
-                cout << "Can't determine winner" << endl;
-                break;
-            }
-            if (i1.getSpecial() == rv) {
-                if (i2.getPower() > 0) {
-                    if (p1._health <= startingHP / 4) {
-                        p1._health = startingHP;
-                        cout << "Player 1 revived!" << endl;
-                    }
+                else {
+                    cout << endl;
                 }
             }
-            if (i2.getSpecial() == rv) {
-                if (i1.getPower() > 0) {
-                    if (p2._health <= startingHP / 4) {
-                        p2._health = startingHP;
-                        cout << "Player 2 revived!" << endl;
-                    }
+            else {
+                cout << "." << endl;
+            }
+            p2._charges -= disrupt1; //disrupt charges
+        }
+        p2._focusPower = 0; //disrupt focus
+    }
+    if (winner == 2) {
+        cout << "Player 2 ";
+        if (i2.getSpecial() == rf || i2.getSpecial() == lm) {
+            p1._health -= totaldamage1;
+            cout << "deflected " << totaldamage1 << " damage";
+            if (disrupt1 > 0) {
+                cout << ", disrupting " << disrupt1 << " mana!" << endl;
+            }
+            else {
+                cout << "." << endl;
+            }
+            p1._charges -= disrupt1;
+        }
+        else {
+            p1._health -= abs(totaldamage2);
+            cout << "dealt " << totaldamage2 << " damage";
+            if (disrupt2 > 0) {
+                cout << ", disrupting " << disrupt2 << " mana!";
+                if (extraDamage > 0) {
+                    cout << " (Crit!)" << endl;
+                }
+                else {
+                    cout << endl;
                 }
             }
-            if (p1._charges <= 0) {
-                p1._charges = 0;
+            else {
+                cout << "." << endl;
             }
-            if (p2._charges <= 0) {
-                p2._charges = 0;
-            }
-            if (p2._health <= 0) {
-                p1.scores++;
-                cout << "Player 1 wins! (" << p1.scores << ":" << p2.scores << ")\n";
-            }
-            else if (p1._health <= 0) {
-                p2.scores++;
-                cout << "Player 2 wins! (" << p1.scores << ":" << p2.scores << ")\n";
-            }
-            if (p1._health <= 0 || p2._health <= 0) {
-                handicap = p1.scores - p2.scores;
-                std::cout << "Difficulty set to: " << (chargePower + handicap) << endl;
-                p1.reset();
-                p2.reset();
+            p1._charges -= disrupt2;
+        }
+        p1._focusPower = 0;
+    }
+    if (winner == -1) {
+        cout << "Parry! (+2 each)" << endl;
+        p1._charges += 2;
+        p2._charges += 2;
+    }
+    if (i1.getSpecial() == rv) {
+        if (i2.getPower() > 0) {
+            if (p1._health <= startingHP / 4) {
+                p1._health = startingHP;
+                cout << "Player 1 revived!" << endl;
             }
         }
+    }
+    if (i2.getSpecial() == rv) {
+        if (i1.getPower() > 0) {
+            if (p2._health <= startingHP / 4) {
+                p2._health = startingHP;
+                cout << "Player 2 revived!" << endl;
+            }
+        }
+    }
+    if (p1._charges <= 0) {
+        p1._charges = 0;
+    }
+    if (p2._charges <= 0) {
+        p2._charges = 0;
+    }
+    if (p2._health <= 0) {
+        p1.scores++;
+        cout << "Player 1 wins! (" << p1.scores << ":" << p2.scores << ")\n";
+    }
+    else if (p1._health <= 0) {
+        p2.scores++;
+        cout << "Player 2 wins! (" << p1.scores << ":" << p2.scores << ")\n";
+    }
+    if (p1._health <= 0 || p2._health <= 0) {
+        handicap = p1.scores - p2.scores;
+        std::cout << "Difficulty set to: " << (chargePower + handicap) << endl;
+        p1.reset();
+        p2.reset();
+    }
+}
+
+void runCommand(std::string& input, std::vector<std::pair<std::string, Move>>& fullMoveName_vector, std::string& currentAbbvMove, Player& p1)
+{
+    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    for (int i = 0; i < moves_vector.size(); i++) {
+        std::string move = moves_vector[i].first;
+        std::string fullmove = fullMoveName_vector[i].first;
+        if (input.substr(0, 5) == "help ") {
+            std::string helpInput = input.substr(5);
+            std::transform(helpInput.begin(), helpInput.end(), helpInput.begin(), ::tolower);
+            if (helpInput == move || helpInput == fullmove) {
+                Move currMove = moves_vector[i].second;
+                cout << currMove.getName() << " [" << move << "] - cost: " << currMove.getCost();
+                if (currMove.getPower() > 0) {
+                    cout << ", atk power: " << currMove.getPower() << endl;
+                }
+                else if (currMove.getPower() < 0) {
+                    cout << ", def power: " << -currMove.getPower() << endl;
+                }
+                else {
+                    cout << endl;
+                }
+                cout << currMove.getDesc() << endl;
+            }
+        }
+        if (input == move || input == fullmove) {
+            currentAbbvMove = move;
+        }
+    }
+    if (input == "moves") {
+        cout << ">>> Here are the list of legal moves." << endl;
+        cout << "[";
+        bool first = true;
+        for (const auto& move : getLegalMoves(p1)) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << move.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl;
+    }
+    if (input == "help") {
+        cout << ">>> Here are the list of moves, hint: you can type help f or help focus for more info." << endl;
+        cout << "[";
+        bool first = true;
+        for (const auto& move : moves_vector) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << move.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl;
+        cout << "[";
+        first = true;
+        for (const auto& fullmove : fullMoveName_vector) {
+            if (!first) {
+                cout << ", ";
+            }
+            cout << fullmove.first;
+            first = false;
+        }
+        cout << "]";
+        cout << endl;
     }
 }
 
