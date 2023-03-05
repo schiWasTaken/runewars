@@ -6,7 +6,7 @@ rock paper scissors but it's complicated
 
 ### Basics
 
-In this unfinished game, 2 players `You :.: CPU` face each other, each starting with 20 health and 0 mana.
+In this unfinished game, 2 players (for now just you and a random moves CPU) face each other, each starting with 20 health and 0 mana.
 
 to help you understand better, let's simplify the game into just 3 moves that are available: Charge, Tackle, Shield
 
@@ -20,21 +20,19 @@ Charge gives you +1 MP, this allows you to use Tackle which costs 1 MP, example 
 
 which will display:
 
-`Charge :.: (some move)`
+`Charge . (some move)`
 
-`Tackle :.: (some move)`
+`Tackle . (some move)`
 
 To defend against weak attacks like Tackle you can cast Shield (doesn't cost MP), example:
 
-`Charge :.: Charge`
+`Charge . Charge`
 
-`Shield :.: Tackle`
+`Shield . Tackle`
 
-`Tackle :.: Shield`
+`Tackle . Shield`
 
 In that scenario, no one receives any damage.
-
-(P.S. the `:.:` is just a stylized "vs" kinda like "Shield vs Tackle" or something idk. It looks cool. UI is hard.)
 
 Note: if def power >= atk power, damage is mitigated. For more info on the move stats (e.g. Tackle) just type `help tackle` or just `help t` in the game.
 
@@ -54,21 +52,21 @@ So let's introduce 2 more moves:
 
 scenario:
 
-`1. Charge :.: Charge`
+`1. Charge . Charge`
 
-`2. Shield :.: Charge`
+`2. Shield . Charge`
 
-`3. Shield :.: Charge`
+`3. Shield . Charge`
 
 Let's look at your options for this scenario:
 
-`4. Shield :.: Ember`
+`4. Shield < Ember`
 This would be good if the opponent decides to use Tackle instead. Unfortunately, they didn't. You will take full damage.
 
-`4. Block :.: Ember`
+`4. Block . Ember`
 This is good for you since it resets the battle. No one receives any damage here.
 
-`4. Charge :.: Ember`
+`4. Charge < Ember`
 Ouch. It's a good time to tell you a core mechanic in this game: 
 
 ### Mana Disruption
